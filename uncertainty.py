@@ -291,6 +291,38 @@ def uncertainty(i, j, E1, E2):
     
     return (norm_var_i + norm_var_j)/2
 
+def uncertainty_custom(i, j, E1, E2):
+    """
+    Parameters
+    ----------
+    i: pandas.Series
+        boolean mask
+    j: pandas.Series
+        boolean mask
+    E1: pandas.Series
+        boolean mask
+    E2: pandas.Series
+        boolean mask
+    
+    Returns
+    -------
+    float
+        uncertainty of the disparity between two groups i and j"""
+    alpha_prior = 1
+    beta_prior = 1
+    # group i
+    n_success_i = (((E1 & E2) | (~E1 & ~E2)) & i).sum()
+    alpha_post_i = alpha_prior + n_success_i
+    beta_post_i = beta_prior + (i).sum() - n_success_i
+    norm_var_i = beta_normalized_variance(alpha_post_i, beta_post_i)
+    # group j
+    n_success_j = (((E1 & E2) | (~E1 & ~E2)) & j).sum()
+    alpha_post_j = alpha_prior + n_success_j
+    beta_post_j = beta_prior + (j).sum() - n_success_j
+    norm_var_j = beta_normalized_variance(alpha_post_j, beta_post_j)
+    
+    return (norm_var_i + norm_var_j)/2
+
 
 def decision_maker(i, j, E1, E2=True):
     """
